@@ -199,7 +199,7 @@ class Radar extends React.Component{
 		let { data , width , height , radius , lineWidth , scaleLine } = this.state.props;
 		let { gridNum } = scaleLine;
 		ctx.clearRect(0, 0, width, height);
-		//只有在参数项>=3的时候才有绘制雷达图的必要
+		//只有在参数项>={lengthLimit}的时候才有绘制雷达图的必要
 		if(data.length >= lengthLimit){
 			for(let i = 0 ; i < gridNum ; i++){
 				this.drawRadar(ctx, radius - (radius/gridNum) * i);
