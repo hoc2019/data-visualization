@@ -122,6 +122,7 @@ class Radar extends React.Component{
 		if(y > 0){ y += textGap }else if(y < 0){ y -= textGap }
 		ctx.font = font;
 		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
 		ctx.fillStyle = color;
 		//render是开发者自定义的渲染方法，如果是方法并且有返回值，则使用开发者自定义的，否则用默认的
 		ctx.fillText(typeof render === 'function' && render(item, labelRender) ? render(item, labelRender) : label, x, y);
@@ -154,7 +155,7 @@ class Radar extends React.Component{
 		let { canvasId , center } = this.state;
 		let { data , labelRender , dataRender } = this.state.props;
 		let { value } = labelRender;
-		let { dash , stroke , fill , strokeStyle , lineWidth , fillStyle , setLineDash } = dataRender;
+		let { dash , strokeStyle , lineWidth , fillStyle , setLineDash } = dataRender;
 		let ctx = this.getCtx(canvasId[1]);
 		let scoreArr = [];
 		let max = 0;
@@ -175,15 +176,18 @@ class Radar extends React.Component{
 			ctx.lineTo(dataArr[i].x * getRate(dataArr[i].item[value], max), dataArr[i].y * getRate(dataArr[i].item[value], max))
 		}
 		ctx.closePath();
+		//是否虚线
 		if(dash){
 			ctx.setLineDash(setLineDash);
 		}
-		if(stroke){
+		//是否有边框
+		if(strokeStyle){
 			ctx.strokeStyle = strokeStyle;
 			ctx.lineWidth = lineWidth;
 			ctx.stroke();
 		}
-		if(fill){
+		//是否有填充色
+		if(fillStyle){
 			ctx.fillStyle = fillStyle;
 			ctx.fill();
 		}
@@ -208,8 +212,8 @@ class Radar extends React.Component{
 		let { canvasId } = this.state;
 		let { width , height } = this.state.props;
 		return(
-			<div className = 'radar_area'>
-				 { canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = 'radar_canvas'></canvas>) }
+			<div className = { styles.radar_all }>
+				 { canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = { styles.radar_canvas }></canvas>) }
 			</div>
 		)
 	}
@@ -235,15 +239,13 @@ Radar.defaultProps = {
 		label : 'name',			//需要渲染的名称键名 对应data种需要渲染的名称
 		value : 'score',		//需要渲染值的键名 对应data种需要渲染的数值
 		color : 'color',		//自定义需要渲染的颜色的键名 对应data中渲染的颜色
-		textGap : 12,			//文案和图的间距
+		textGap : 15,			//文案和图的间距
 		defaultColor : '#000',	//默认字体的颜色
 		font : '16px Arial',	//默认字体大小和字体
 		render : (item, params) => `${item[params.label] || ''}${!isNaN(item[params.value]) ? '(' + item[params.value] + ')' : ''}`
 	},
 	dataRender : {
 		dash : false,			//是否是虚线
-		stroke : false,			//是否有边框
-		fill : true,			//是否有填充色
 		setLineDash : [2, 2],	//虚线参数[长度，间隔]
 		strokeStyle : '#000',	//边框颜色
 		lineWidth : 1,			//边框宽度
@@ -251,31 +253,31 @@ Radar.defaultProps = {
 	},
 	data : [{
 		name : 'A',
-		score : 100,
+		score : 90,
 		color : 'aqua'
 	},{
 		name : 'B',
-		score : 90,
+		score : 60,
 		color : 'red'
 	},{
 		name : 'C',
-		score : 70
+		score : 60
 	},{
 		name : 'D',
-		score : 180,
+		score : 60,
 		color : 'blue',
 	},{
 		name : 'E',
-		score : 80
+		score : 60
 	},{
 		name : 'F',
-		score : 40
+		score : 60
 	},{
 		name : 'G',
-		score : -100
+		score : 60
 	},{
 		name : 'H',
-		score : 150
+		score : 60
 	}],							//展示数据
 }
 
