@@ -125,6 +125,7 @@ class Line extends React.Component{
 		let { axisY , line , dot } = data;
 		let { key , label } = axisY;
 		let gapPosition = this.getPosition();
+		//默认了字体是12px，这里未设置可配置
 		let style = { width , height : gapPosition[tooltip.position] - 12 };
 		style[tooltip.position] = 0;
 		tooltipDOM = (
