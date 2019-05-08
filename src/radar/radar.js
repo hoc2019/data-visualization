@@ -1,5 +1,6 @@
 import React from 'react';
-import styles from './radar.less';
+import { _getCtx , _getRate , _getMax } from '../../utils/func.js';
+import './radar.less';
 
 /**
  * 雷达图
@@ -16,10 +17,6 @@ class Radar extends React.Component{
 		}
 	}
 
-	getCtx(id){
-        return this.refs[id] && this.refs[id].getContext('2d')
-    }
-
 	//组件完全受控，将props存入state的props对象中
 	componentDidMount(){
 		this.setState({ props : this.props }, () => this.init());
@@ -33,7 +30,7 @@ class Radar extends React.Component{
 	init(){
 		let { canvasId } = this.state;
 		let { width , height } = this.state.props;
-		let ctxBack = this.getCtx(canvasId[0]);
+		let ctxBack = _getCtx.call(this, canvasId[0]);
 		let center = {
 			x : Math.round(width/2),
 			y : Math.round(height/2)
@@ -53,7 +50,6 @@ class Radar extends React.Component{
 		ctx.arc(0, 0, 3, 0, 2 * Math.PI);
 		ctx.fillStyle = '#000';
 		ctx.fill();
-		ctx.closePath();
 		ctx.stroke();
 		ctx.restore();
 	}
@@ -95,7 +91,6 @@ class Radar extends React.Component{
 		//如果是最外层且允许绘制指示线 则绘制指示线
 		if(outSideFlag && print){
 			this.drawGuideLine(ctx, dotArr);
-
 		}
 		//绘制数据层
 		if(outSideFlag){
@@ -138,9 +133,7 @@ class Radar extends React.Component{
 			ctx.beginPath();
 			ctx.translate(center.x, center.y);
 			//如果需要绘制虚线则绘制虚线
-			if(dash){
-				ctx.setLineDash(setLineDash)
-			}
+			setLineDash && setLineDash.length > 0 && ctx.setLineDash(setLineDash)
 			ctx.moveTo(0,0);
 			ctx.lineTo(dotArr[i].x, dotArr[i].y);
 			ctx.lineWidth = lineWidth;
@@ -156,24 +149,15 @@ class Radar extends React.Component{
 		let { data , labelRender , dataRender } = this.state.props;
 		let { value } = labelRender;
 		let { dash , strokeStyle , lineWidth , fillStyle , setLineDash } = dataRender;
-		let ctx = this.getCtx(canvasId[1]);
-		let scoreArr = [];
-		let max = 0;
-		//如果是非数字或者负数，则计为0
-		let getRate = (num, max) => (!isNaN(num) && !isNaN(max) && num >= 0 && max >= 0 ? num/max : 0);
-		//取出数据中的数值push到一个数组中，方便判断最大值
-		for(let i = 0 ; i < data.length ; i++){
-			//这里需要判断是否为数字再push，否则在判断最大值的时候无法判断
-			!isNaN(data[i][value]) && scoreArr.push(data[i][value]);
-		}
+		let ctx = _getCtx.call(this, canvasId[1]);
 		//取出最大值作为刻度的100%
-		max = Math.max.apply(null, scoreArr);
+		let max = _getMax(data, value);
 		ctx.save();
 		ctx.beginPath();
 		ctx.translate(center.x,center.y);
-		ctx.moveTo(dataArr[0].x * getRate(dataArr[0].item[value], max), dataArr[0].y * getRate(dataArr[0].item[value], max));
+		ctx.moveTo(dataArr[0].x * _getRate(dataArr[0].item[value], max), dataArr[0].y * _getRate(dataArr[0].item[value], max));
 		for(let i = 0 ; i < dataArr.length ; i++){
-			ctx.lineTo(dataArr[i].x * getRate(dataArr[i].item[value], max), dataArr[i].y * getRate(dataArr[i].item[value], max))
+			ctx.lineTo(dataArr[i].x * _getRate(dataArr[i].item[value], max), dataArr[i].y * _getRate(dataArr[i].item[value], max))
 		}
 		ctx.closePath();
 		//是否虚线
@@ -212,8 +196,8 @@ class Radar extends React.Component{
 		let { canvasId } = this.state;
 		let { width , height } = this.state.props;
 		return(
-			<div className = { styles.radar_all }>
-				 { canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = { styles.radar_canvas }></canvas>) }
+			<div className = 'radar_area'>
+				 { canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = 'radar_canvas'></canvas>) }
 			</div>
 		)
 	}
@@ -230,7 +214,6 @@ Radar.defaultProps = {
 	},
 	guideLine : {
 		print : true,			//是否绘制指示线
-		dash : true,			//是否是虚线
 		setLineDash : [5, 5],	//指示线参数[长度，间隔]
 		lineWidth : 2,			//指示线宽度
 		strokeStyle : '#5d9',	//指示线线颜色
@@ -241,7 +224,7 @@ Radar.defaultProps = {
 		color : 'color',		//自定义需要渲染的颜色的键名 对应data中渲染的颜色
 		textGap : 15,			//文案和图的间距
 		defaultColor : '#000',	//默认字体的颜色
-		font : '16px Arial',	//默认字体大小和字体
+		font : '16px Arial',	//文案默认字体大小和字体种类
 		render : (item, params) => `${item[params.label] || ''}${!isNaN(item[params.value]) ? '(' + item[params.value] + ')' : ''}`
 	},
 	dataRender : {
@@ -253,7 +236,7 @@ Radar.defaultProps = {
 	},
 	data : [{
 		name : 'A',
-		score : 90,
+		score : 120,
 		color : 'aqua'
 	},{
 		name : 'B',
@@ -268,17 +251,19 @@ Radar.defaultProps = {
 		color : 'blue',
 	},{
 		name : 'E',
-		score : 60
+		score : 60,
+		color : 'green'
 	},{
 		name : 'F',
-		score : 60
+		score : 60,
+		color : 'yellow'
 	},{
 		name : 'G',
 		score : 60
 	},{
 		name : 'H',
 		score : 60
-	}],							//展示数据
+	}]							//展示数据
 }
 
 export default Radar;
