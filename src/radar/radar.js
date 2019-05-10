@@ -1,6 +1,7 @@
 import React from 'react';
-import { _getCtx , _getRate , _getMax } from '../../utils/func.js';
-import './radar.less';
+import { _getRate , _getMax } from '../../utils/calc.js';
+import { _getCtx } from '../../utils/canvas.js';
+import styles from './radar.less';
 
 /**
  * 雷达图
