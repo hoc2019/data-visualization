@@ -25,10 +25,13 @@ function DrawCoordinate(){
 	 * 绘制坐标轴
 	 * @parmas ctx canvas的上下文
 	 * @params props 坐标线的属性
+	 *  show 是否绘制该刻度线
 	 *  begin 初始canvas坐标点
 	 * 	end 结束canvas坐标点
 	 * 	strokeStyle 线条颜色
 	 *  lineWidth 线条宽度
+	 *  lineCap 轴线链接属性
+	 *  setLineDash 虚线属性
 	 */
 	this._drawCoor = function(ctx, props = {}){
 		let { show , begin = defaultBegin, end = defaultEnd, strokeStyle = '#000' , lineWidth = 3 , lineCap = 'round' , setLineDash } = props;
@@ -54,6 +57,7 @@ function DrawCoordinate(){
 	 * @params props 坐标刻度线属性
 	 *  begin 初始canvas坐标点
 	 * 	end 结束canvas坐标点
+	 *  strokeStyle 刻度线颜色
 	 * 	scaleNum 刻度线数量(0不显示刻度线)
 	 *  scaleLength 刻度线长度(可通过正负调节刻度线显示方向，0不显示刻度线)
 	 */
@@ -88,6 +92,9 @@ function DrawCoordinate(){
 	 *  begin 初始canvas坐标点
 	 * 	end 结束canvas坐标点
 	 * 	gridNum 指示线数量(可通过正负调节刻度线显示方向，0不显示指示线)
+	 *  strokeStyle 指示线颜色
+	 *  setLineDash 指示线虚线属性
+	 *  gridLength 指示线长度
 	 */
 	this._drawGrid = function(ctx, props = {}){
 		let { begin = defaultBegin, end = defaultEnd, gridNum = 5 , strokeStyle = '#000' , setLineDash = [4, 4] , gridLength } = props;
@@ -120,6 +127,12 @@ function DrawCoordinate(){
 	 * 绘制坐标轴文案
 	 * @parmas ctx canvas的上下文
 	 * @params props 坐标刻度文案属性
+	 *  key 需要绘制文案的键名字符串或数组
+	 *  key 需要绘制文案的键值字符串或数组
+	 *  labelNum 需要绘制的文案个数
+	 *  begin 起始点坐标数组
+	 *  end 结束点坐标数组
+	 *  data 数据
 	 */
 	this._drawLabel = function(ctx, props = {}){
 		let { key , label , labelNum = 2 , begin = defaultBegin , end = defaultEnd , data = [] } = props;
@@ -178,9 +191,21 @@ class DrawLine extends DrawCoordinate{
 	constructor(props){
 		super(props);
 	}
-	//绘制数据
+	/**
+	 * 绘制数值线
+	 * @params ctx canvas上下文
+	 * @parmas props 相应属性
+	 *  data 数据
+	 *  key 数据键名字符串或数组
+	 *  xCoor x坐标轴属性对象
+	 *  tCoor y坐标轴属性对象
+	 *  lineWidth 数值线宽
+	 *  line 是否绘制数值线
+	 *  dot 是否绘制拐点
+	 *  dotRadius 拐点半径
+	 */
 	_drawData(ctx, props = {}){
-		let { data = [], key = [], xCoor, yCoor , strokeStyle = [] , lineWidth = 3 , dot = true } = props;
+		let { data = [], key = [], xCoor, yCoor , strokeStyle = [] , lineWidth = 3 , line = true , dot = true , dotRadius = 4 } = props;
 		let xLength = (xCoor.end[0] - xCoor.begin[0])/(data.length-1);			//x轴长度
 		let yLength = yCoor.end[1] - yCoor.begin[1];							//y轴长度(为负数)
 		let max = 0;
@@ -191,7 +216,7 @@ class DrawLine extends DrawCoordinate{
 		}
 		//绘制数据时 是绘制完一种数据再绘制另一种 所以外层是key遍历 内层是data遍历
 		//绘制折线
-		key.map((keyItem, keyIndex) => {
+		line && key.map((keyItem, keyIndex) => {
 			ctx.beginPath();
 			data.map((dataItem, dataIndex) => {
 				let item = dataItem[keyItem];
@@ -204,14 +229,14 @@ class DrawLine extends DrawCoordinate{
 			ctx.lineWidth = lineWidth;
 			ctx.stroke();
 		})
-		//允许显示拐点时 绘制拐点
+		//绘制拐点
 		dot && key.map((keyItem, keyIndex) => {
 			data.map((dataItem, dataIndex) => {
 				let item = dataItem[keyItem];
 				cx = xCoor.begin[0] + xLength * dataIndex;
 				cy = _getRate(item, max) * yLength + yCoor.begin[1];			//比例 * y轴长度 + y起始坐标 => 转化为笛卡尔坐标系的y轴坐标
 				ctx.beginPath();
-				ctx.arc(cx, cy, 5, 0, 2 * Math.PI);
+				ctx.arc(cx, cy, dotRadius, 0, 2 * Math.PI);
 				ctx.fillStyle = strokeStyle[keyIndex % strokeStyle.length];
 				ctx.fill();
 			})
