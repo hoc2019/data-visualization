@@ -189,6 +189,7 @@ class DrawLine extends DrawCoordinate{
 			//取出所有y轴数据中的最大值
 			max = Math.max(max, _getMax(data, key[i]));
 		}
+		//绘制数据时 是绘制完一种数据再绘制另一种 所以外层是key遍历 内层是data遍历
 		//绘制折线
 		key.map((keyItem, keyIndex) => {
 			ctx.beginPath();
