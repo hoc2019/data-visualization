@@ -180,7 +180,7 @@ class DrawLine extends DrawCoordinate{
 	}
 	//绘制数据
 	_drawData(ctx, props = {}){
-		let { data = [], key = [], xCoor, yCoor , strokeStyle = [] , lineWidth = 3 } = props;
+		let { data = [], key = [], xCoor, yCoor , strokeStyle = [] , lineWidth = 3 , dot = true } = props;
 		let xLength = (xCoor.end[0] - xCoor.begin[0])/(data.length-1);			//x轴长度
 		let yLength = yCoor.end[1] - yCoor.begin[1];							//y轴长度(为负数)
 		let max = 0;
@@ -203,8 +203,8 @@ class DrawLine extends DrawCoordinate{
 			ctx.lineWidth = lineWidth;
 			ctx.stroke();
 		})
-		//绘制拐点
-		key.map((keyItem, keyIndex) => {
+		//允许显示拐点时 绘制拐点
+		dot && key.map((keyItem, keyIndex) => {
 			data.map((dataItem, dataIndex) => {
 				let item = dataItem[keyItem];
 				cx = xCoor.begin[0] + xLength * dataIndex;

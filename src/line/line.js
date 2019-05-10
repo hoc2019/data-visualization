@@ -124,7 +124,7 @@ Line.defaultProps = {
 	gridY : { gridNum : 5 , strokeStyle : '#000' , setLineDash : [4, 4] },				//基于y轴的指示线
 	labelX : { key : 'x' , label : '日期' },												//x轴取值键名及文案说明
 	labelY : { key : ['weight','IQ','EQ'] , label : ['体重','智商','情商'] , labelNum : 5 },	//y轴取值键名及文案说明
-	dataLine : { strokeStyle : ['red','green','blue'] , lineWidth : 3 },				//数据展示线条属性
+	dataLine : { strokeStyle : ['red','green','blue'] , lineWidth : 3 , dot : true },				//数据展示线条属性
 	tooltip : { position : 'bottom' , height : 60 , childLineHeight : 5 , childLineWidth : 40 },	//工具提示
 	data : [{
 		x : '2012-12-12' , weight : 0 , IQ : 300 , EQ : 250
