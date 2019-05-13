@@ -15,7 +15,7 @@ export function _getCtx(id, type = '2d'){
 function DrawCoordinate(){
 	let defaultBegin = [0, 0];
 	let defaultEnd = [100,100];
-	//判断是否在绘制x或y轴(x或y轴必须是水平或者竖直)
+	/*判断是否在绘制x或y轴(水平或竖直的坐标轴)*/
 	function isDrawCoor(begin = defaultBegin, end = defaultEnd){
 		let drawX = begin[0] !== end[0] && begin[1] === end[1];		//true时表示在绘制水平x轴
 		let drawY = begin[0] === end[0] && begin[1] !== end[1]; 	//true时表示在绘制竖直y轴
@@ -36,7 +36,7 @@ function DrawCoordinate(){
 	this._drawCoor = function(ctx, props = {}){
 		let { show , begin = defaultBegin, end = defaultEnd, strokeStyle = '#000' , lineWidth = 3 , lineCap = 'round' , setLineDash } = props;
 		let { flag } = isDrawCoor(begin, end);
-		//显示该坐标轴线
+		//显示该坐标轴
 		if(show && flag){
 			ctx.save();
 			ctx.beginPath();
@@ -62,7 +62,7 @@ function DrawCoordinate(){
 	 *  scaleLength 刻度线长度(可通过正负调节刻度线显示方向，0不显示刻度线)
 	 */
 	this._drawScale = function(ctx, props = {}){
-		let { begin = defaultBegin, end = defaultEnd, strokeStyle = '#000' , scaleNum = 5, scaleLength = 0 } = props;
+		let { begin = defaultBegin, end = defaultEnd, strokeStyle = '#000', scaleNum = 5, scaleLength = 0, lineWidth = 2 } = props;
 		let { drawX , drawY , flag } = isDrawCoor(begin, end);
 		//绘制x轴或者y轴 并且刻度线数量大于0时 绘制刻度线
 		if(flag && scaleNum > 0){
@@ -79,6 +79,7 @@ function DrawCoordinate(){
 				ctx.beginPath();
 				ctx.moveTo(cx, cy);
 				ctx.lineTo(ex, ey);
+				ctx.lineWidth = lineWidth;
 				ctx.strokeStyle = strokeStyle;
 				ctx.stroke();
 			}
@@ -97,10 +98,10 @@ function DrawCoordinate(){
 	 *  gridLength 指示线长度
 	 */
 	this._drawGrid = function(ctx, props = {}){
-		let { begin = defaultBegin, end = defaultEnd, gridNum = 5 , strokeStyle = '#000' , setLineDash = [4, 4] , gridLength } = props;
+		let { begin = defaultBegin , end = defaultEnd , show , gridNum = 5 , strokeStyle = '#000' , lineWidth = 2, setLineDash = [4, 4] , gridLength } = props;
 		let { drawX , drawY , flag } = isDrawCoor(begin, end);
 		//绘制x轴或者y轴 并且指示线数量大于0时 绘制指示线
-		if(flag && gridNum > 0){
+		if(show && flag && gridNum > 0){
 			//有{gridNum}条指示线，则该坐标轴被分为了{gridNum-1}块区域
 			let xLength = (end[0]-begin[0])/(gridNum-1);			//每块区域x轴的长度
 			let yLength = (end[1]-begin[1])/(gridNum-1);			//每块区域y轴的长度
@@ -117,6 +118,7 @@ function DrawCoordinate(){
 				Array.isArray(setLineDash) && setLineDash.length === 2 && ctx.setLineDash(setLineDash);
 				ctx.moveTo(cx, cy);
 				ctx.lineTo(ex, ey);
+				ctx.lineWidth = lineWidth;
 				ctx.strokeStyle = strokeStyle;
 				ctx.stroke();
 			}
@@ -180,6 +182,46 @@ function DrawCoordinate(){
 			return;
 		}
 		ctx.restore();
+	}
+	/**
+	 * 鼠标悬浮绘制具体数据提示
+	 * @parmas ctx 绘制canvas的上下文
+	 * @params props 其他参数对象
+	 *  width 文案块宽度
+	 *  height 文案块高度
+	 *  setLineDash 指示线是否虚线属性
+	 *  canvasW canvas的宽度
+	 *  canvasH canvas的高度
+	 *  xCoor x坐标轴的位置属性
+	 *  yCoor y坐标轴的位置属性
+	 *  data 数据
+	 *  scale 当前鼠标的坐标(外部传入最好取offsetX和offSetY 与canvas坐标系对应)
+	 */
+	this._drawDataBlock = function(ctx, props = {}){
+		let { width , height , setLineDash , canvasW, canvasH, xCoor, yCoor, data = [], scale } = props;
+		let dataLength = data.length;
+		let xLength = (xCoor.end[0] - xCoor.begin[0])/(dataLength-1);		//每一块x轴的长度
+		for(let i = 0 ; i < data.length ; i++){
+			let x = xCoor.begin[0] + xLength * i;
+			if(Math.abs(scale[0] - x) < Math.abs(xLength)/2){
+				ctx.save();
+				ctx.clearRect(0, 0, canvasW, canvasH);
+
+				ctx.beginPath();
+				Array.isArray(setLineDash) && setLineDash.length === 2 && ctx.setLineDash(setLineDash);
+				ctx.moveTo(x, xCoor.begin[1]);
+				ctx.lineTo(x, yCoor.end[1]);
+				ctx.strokeStyle = '#000';
+				ctx.stroke();
+
+				ctx.beginPath();
+				ctx.fillRect(x+5, (yCoor.end[1] - yCoor.begin[1])/2 + yCoor.begin[1], width, height);
+				ctx.fill();
+				ctx.restore();
+
+				break;
+			}
+		}
 	}
 }
 
