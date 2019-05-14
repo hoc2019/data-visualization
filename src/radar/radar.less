@@ -1,11 +1,27 @@
-.radar_area{
+.radar_all{
 	position : relative;
-	width : 400px;
-	height : 400px;
 }
 .radar_canvas{
 	position : absolute;
 	top : 0;
 	left : 0;
 	border : 1px solid #000;
+}
+.radar_tooltip{
+	position : absolute;
+	display : flex;
+	justify-content : center;
+	align-items : center;
+	flex-wrap : nowrap;
+	>div{
+		display : flex;
+		justify-content : center;
+		align-items : center;
+		flex-wrap : nowrap;
+		font-size : 14px;
+		&:not(last-child){
+			margin-right : 10px;
+		}
+		cursor : pointer;
+	}
 }
