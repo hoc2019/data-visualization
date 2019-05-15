@@ -18,7 +18,7 @@ class Line extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			canvasId : ['back', 'data'],
+			canvasId : ['back', 'data', 'block'],
 			titleDOM : undefined,
 			tooltipPro : {},
 			xCoor : {},				//x轴{begin:[x,y], end:[x,y]}
@@ -52,8 +52,8 @@ class Line extends React.Component{
 		let ctxBack = _getCtx.call(this, canvasId[0]);
 		let ctxData = _getCtx.call(this, canvasId[1]);
 		//给block的canvas页面 添加鼠标事件监听
-//		let block = this.refs[canvasId[2]];
-//		block.addEventListener('mousemove', this.drawBlock);
+		let block = this.refs[canvasId[2]];
+		block.addEventListener('mousemove', this.drawBlock);
 		this.setState({
 			xCoor : { begin : [left, height - bottom] , end : [width - right, height - bottom] },
 			yCoor : { begin : [left, height - bottom] , end : [left, top] }
@@ -100,19 +100,22 @@ class Line extends React.Component{
 	//绘制鼠标悬浮数据层
 	drawBlock(e){
 		let { top , right , bottom , left } = this.getPosition();
-		let { width , height , dataBlock } = this.state.props;
+		let { width , height , labelX , labelY , dataLine , dataBlock } = this.state.props;
 		let { canvasId , xCoor , yCoor , formatData } = this.state;
 		let ctx = _getCtx.call(this, canvasId[2]);
 		let flag = e.offsetX >= left && e.offsetX <= width - right && e.offsetY >= top && e.offsetY <= height-bottom;
+		ctx.clearRect(0, 0, width, width);
 		if(flag){
 			_drawLineDataBlock(ctx, {
 				...dataBlock,
-				canvasW : width,
-				canvasH : height,
 				xCoor,
 				yCoor,
 				data : formatData,
-				scale : [e.offsetX, e.offsetY]
+				scale : [e.offsetX, e.offsetY],
+				xKey : labelX.key,
+				yKey : Array.isArray(labelY.key) && labelY.key || [],
+				yLabel : Array.isArray(labelY.label) && labelY.label || [],
+				fontColor : dataLine.strokeStyle
 			});
 		}else{
 			ctx.clearRect(0, 0, width, height)
@@ -125,8 +128,7 @@ class Line extends React.Component{
 		let { position , label , style = {} } = title;
 		style = { ...style , width };
 		style[position] = 0;
-		let titleDOM = (<div className = { 'line_title' } style = { style }>{ label }</div>)
-		this.setState({ titleDOM })
+		this.setState({ titleDOM : (<div className = { 'line_title' } style = { style }>{ label }</div>) })
 	}
 
 	//绘制数据含义工具栏
@@ -203,28 +205,28 @@ Line.defaultProps = {
 	axisY : { show : true , strokeStyle : '#5d9cec' , lineWidth : 2 , setLineDash : [] },
 	scaleX : { scaleLength : 0 , strokeStyle : '#5d9' , lineWidth : 2 },									//基于x轴的刻度线(刻度线数量为data数组长度)
 	scaleY : { scaleNum : 0 , scaleLength : 10 , lineWidth : 2 },					//基于y轴的可短线(刻度线数量自定义)
-	gridX : { show : true , strokeStyle : '#000' , lineWidth : 1 , setLineDash : [4, 4] },		//基于x轴的指示线
+	gridX : { show : false , strokeStyle : '#000' , lineWidth : 1 , setLineDash : [4, 4] },		//基于x轴的指示线
 	gridY : { show : true , gridNum : 5, strokeStyle : '#000' , lineWidth : 1 , setLineDash : [4, 4] },				//基于y轴的指示线
 	labelX : { key : 'x' , label : '日期' },												//x轴取值键名及文案说明
-	labelY : { key : ['weight','IQ','EQ'] , label : ['体重','智商','情商'] , labelNum : 5 },	//y轴取值键名及文案说明
-	dataLine : { strokeStyle : ['red','green','blue'] , lineWidth : 3 , line : true , dot : true , dotRadius : 4 },				//数据展示线条属性
+	labelY : { key : ['weight','IQ','EQ','NQ'] , label : ['体重','智商','情商','智障'] , labelNum : 5 },	//y轴取值键名及文案说明
+	dataLine : { strokeStyle : ['red','green','blue','violet'] , lineWidth : 3 , line : true , dot : true , dotRadius : 4 },				//数据展示线条属性
 	tooltip : { position : 'bottom' , childLineHeight : 5 , childLineWidth : 40 , height : 60 , disabledColor : '#ddd' },	//工具提示
-	title : { position : 'top' , label : '人体状况图（α测试）' , style : { fontSize : 20 , color : '#000' , height : 60 } },
-	dataBlock : { rectWidth : 100 , rectHeight : 100 , lineWidth : 1 , setLineDash : [4, 4] },
+	title : { position : 'top' , label : '人体状况图（α测试）' , style : { fontSize : 16 , color : '#000' , height : 60 } },
+	dataBlock : { rectWidth : 100 , lineWidth : 1 , setLineDash : [4, 4] , lineHeight : 20 , fillStyle : 'rgba(93,156,236,.3)' },
 	data : [{
-		x : '2012-12-12' , weight : 200 , IQ : 300 , EQ : 138
+		x : '2012-12-12' , weight : 200 , IQ : 300 , EQ : 138 , NQ : 100
 	},{
-		x : '2012-12-13' , weight : 100 , IQ : 200 , EQ : 500
+		x : '2012-12-13' , weight : 100 , IQ : 200 , EQ : 500 , NQ : 150
 	},{
-		x : '2012-12-14' , weight : 200 , IQ : 100 , EQ : 172
+		x : '2012-12-14' , weight : 200 , IQ : 100 , EQ : 172 , NQ : 89
 	},{
-		x : '2012-12-15' , weight : 150 , IQ : 0 , EQ : 146
+		x : '2012-12-15' , weight : 150 , IQ : 0 , EQ : 146 , NQ : 200
 	},{
-		x : '2012-12-16' , weight : 200 , IQ : 100 , EQ : 250
+		x : '2012-12-16' , weight : 200 , IQ : 100 , EQ : 250 , NQ : 165
 	},{
-		x : '2012-12-17' , weight : 100 , IQ : 200 , EQ : 125
+		x : '2012-12-17' , weight : 100 , IQ : 200 , EQ : 125 , NQ : 138
 	},{
-		x : '2012-12-18' , weight : 200 , IQ : 300 , EQ : 250
+		x : '2012-12-18' , weight : 200 , IQ : 300 , EQ : 250 , NQ : 50
 	}]
 }
 

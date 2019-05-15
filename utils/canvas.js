@@ -191,21 +191,22 @@ function DrawCartCoor(){
 	 *  width 文案块宽度
 	 *  height 文案块高度
 	 *  setLineDash 指示线是否虚线属性
-	 *  canvasW canvas的宽度
-	 *  canvasH canvas的高度
-	 *  xCoor x坐标轴的位置属性
-	 *  yCoor y坐标轴的位置属性
+	 *  xCoor x坐标轴的位置属性{begin:a,end:b}
+	 *  yCoor y坐标轴的位置属性{begin:a,end:b}
 	 *  data 数据
 	 *  scale 当前鼠标的坐标(外部传入最好取offsetX和offSetY 与canvas坐标系对应)
+	 *  xKey x的key值 字符串 'key'
+	 *  yKey y的key值 数组 ['a','b','c']
+	 *  yLabel y的key值对应的文案数组 ['这是a','这是b','这是c']
 	 */
 	this._drawDataBlock = function(ctx, props = {}){
-		let { rectWidth , rectHeight , lineWidth , setLineDash , canvasW, canvasH, xCoor, yCoor, data = [], scale } = props;
+		let { rectWidth , rectHeight , lineWidth , setLineDash , lineHeight , fillStyle , xCoor, yCoor, data = [], scale , xKey , yKey , yLabel , fontColor } = props;
 		let dataLength = data.length;
 		let xLength = (xCoor.end[0] - xCoor.begin[0])/(dataLength-1);		//每一块x轴的长度
 		ctx.save();
-		ctx.clearRect(0, 0, canvasW, canvasH);
 		for(let i = 0 ; i < data.length ; i++){
 			let x = xCoor.begin[0] + xLength * i;
+			//如果当前鼠标的x轴坐标离这个x点的长度小于每个x刻度间隔的一半 则展示该x轴的数据
 			if(Math.abs(scale[0] - x) < Math.abs(xLength)/2){
 				ctx.save();
 				ctx.beginPath();
@@ -217,10 +218,38 @@ function DrawCartCoor(){
 				ctx.stroke();
 				ctx.restore();
 
+				let beginTextCx = x + 5;
+				let beginTextCy = scale[1];
+				let textCy = beginTextCy;
+				let allLineHeight = 0;
+				//如果当前刻度x轴位置大于了一半 则文字框展示在刻度线左侧
+				if(i > data.length/2){
+					beginTextCx	= x - rectWidth - 5;
+				}
+				for(let j in data[i]){
+					allLineHeight += lineHeight;
+				}
 				ctx.beginPath();
-				ctx.strokeRect(x+5, (yCoor.end[1] - yCoor.begin[1])/2 + yCoor.begin[1], rectWidth, rectHeight);
-				ctx.stroke();
-
+				//先绘制背景
+				ctx.fillStyle = fillStyle;
+				ctx.fillRect(beginTextCx, beginTextCy, rectWidth, allLineHeight);
+				//然后绘制文案
+				ctx.textBaseline = 'top';
+				for(let j in data[i]){
+					//渲染x轴的值
+					if(xKey === j){
+						ctx.strokeText(`${data[i][j]}`, beginTextCx + 5, textCy);
+						ctx.stroke();
+					}
+					//渲染各个y轴的值
+					if(yKey.indexOf(j) > -1){
+						ctx.strokeStyle = fontColor[yKey.indexOf(j) % fontColor.length];
+						//绘制文字 如果找不到相应的label则直接显示键名
+						ctx.strokeText(`${yLabel[yKey.indexOf(j)] || j}:${data[i][j]}`, beginTextCx + 5, textCy);
+						ctx.stroke();
+					}
+					textCy += lineHeight;
+				}
 				break;
 			}
 		}
