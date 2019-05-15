@@ -218,19 +218,19 @@ function DrawCartCoor(){
 				ctx.stroke();
 				ctx.restore();
 
-				let beginTextCx = x + 5;
-				let beginTextCy = scale[1];
-				let textCy = beginTextCy;
-				let allLineHeight = 0;
+				let beginTextCx = x + 5;			//当前文字框x轴的坐标
+				let beginTextCy = scale[1];			//当前文字框y的坐标
+				let textCy = beginTextCy;			//文字框y的初始坐标位置
+				let allLineHeight = 0;				//文字框的高度
 				//如果当前刻度x轴位置大于了一半 则文字框展示在刻度线左侧
-				if(i > data.length/2){
+				if(i >= data.length/2){
 					beginTextCx	= x - rectWidth - 5;
 				}
 				for(let j in data[i]){
-					allLineHeight += lineHeight;
+					allLineHeight += lineHeight;	//计算文字框的高度(如果当前不显示某一项数据，这里可以做到自适应高度)
 				}
 				ctx.beginPath();
-				//先绘制背景
+				//先绘制文字框y
 				ctx.fillStyle = fillStyle;
 				ctx.fillRect(beginTextCx, beginTextCy, rectWidth, allLineHeight);
 				//然后绘制文案
@@ -248,6 +248,7 @@ function DrawCartCoor(){
 						ctx.strokeText(`${yLabel[yKey.indexOf(j)] || j}:${data[i][j]}`, beginTextCx + 5, textCy);
 						ctx.stroke();
 					}
+					//下一行的坐标增加
 					textCy += lineHeight;
 				}
 				break;
