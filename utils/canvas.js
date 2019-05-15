@@ -462,8 +462,8 @@ class DrawRadar extends DrawPolarCoor{
 				index > 0 && ctx.lineTo.apply(ctx, ratePos);
 				ctx.lineWidth = lineWidth;
 				_isSetLineDash(setLineDash, (pos) => { ctx.setLineDash(pos) });
-				if(stroke){ ctx.strokeStyle = strokeStyle[dataKeyIndex % strokeStyle.length] }
-				if(fill){ ctx.fillStyle = fillStyle[dataKeyIndex % fillStyle.length] }
+				ctx.strokeStyle = strokeStyle[dataKeyIndex % strokeStyle.length];
+				ctx.fillStyle = fillStyle[dataKeyIndex % fillStyle.length];
 			});
 			ctx.closePath();
 			stroke && ctx.stroke();

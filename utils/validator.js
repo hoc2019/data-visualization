@@ -16,7 +16,7 @@ export function _isExist(){
  * 校验canvas是否渲染虚线
  */
 export function _isSetLineDash(setLineDash, callback){
-	Array.isArray(setLineDash) && setLineDash.length === 2 && callback(setLineDash);
+	Array.isArray(setLineDash) && setLineDash.length === 2 && typeof callback === 'function' && callback(setLineDash);
 }
 
 /**
