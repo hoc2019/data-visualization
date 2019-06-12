@@ -55,6 +55,8 @@ class DashBoard extends React.Component{
 		_drawDashBoardCenterDot(ctx, centerDot);
 		/*绘制刻度*/
 		_drawDashBoardScale(ctx, { innerRadius , startAngle , endAngle , direction , ...scale });
+		/*重置原点位置 方便清除canvas*/
+		_setDashBoardCenter(ctx, [-center[0], -center[1]]);
 	}
 
 	drawData(ctx){
@@ -65,6 +67,7 @@ class DashBoard extends React.Component{
 		_setDashBoardCenter(ctx, center);
 		/*绘制仪表盘数据指示线*/
 		_drawDashBoardDataLine(ctx, { startAngle , endAngle , direction , ...pointer , dataNum , max : scale.max });
+		/*重置原点位置 方便清除canvas*/
 		_setDashBoardCenter(ctx, [-center[0], -center[1]]);
 	}
 
