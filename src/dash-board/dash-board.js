@@ -89,7 +89,7 @@ DashBoard.defaultProps = {
 	direction : false,				//false顺时针方向 true逆时针方向
 	invalidAreaBg : '#ddd',			//无效区背景色
 	centerDot : { radius : 5, stroke : false , fill : true , strokeStyle : '#5d9' , fillStyle : '#5d9' , lineWidth : 3 },		//中心点属性
-	scale : { gap : 10 , num : 5 , max : 20 },	//刻度线属性
+	scale : { gap : 15 , num : 5 , max : 20 , font : '12px Arail' },	//刻度线属性
 	pointer : { length : 90 , strokeStyle : '#5d9' , lineWidth : 4 },	//指示线属性
 	dataNum : 15,					//当前数据
 }

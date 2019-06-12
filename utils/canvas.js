@@ -675,12 +675,13 @@ class DrawDashBoard extends DrawPolarCoor{
 	 *  max 刻度线最大值
 	 */
 	_drawDashBoardScale(ctx, props){
-		let { innerRadius , startAngle , endAngle , direction , gap , num , max } = props;
+		let { innerRadius , startAngle , endAngle , direction , gap , num , max , font } = props;
 		//有效区弧度
 		let use = this._getUseRad(startAngle, endAngle, direction);
 		for(let i = 0 ; i < num + 1 ; i++){
 			ctx.textAlign = 'center';
 			ctx.textBaseline = 'middle';
+			ctx.font = font;
 			ctx.fillText(Math.round(i*max/num), (innerRadius-gap)*Math.cos(startAngle+i*use/num), (innerRadius-gap)*Math.sin(startAngle+i*use/num));
 		}
 	}
