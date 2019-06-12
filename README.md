@@ -4,6 +4,7 @@
 # 目前已完成
 	line（折线图）
 	radar（雷达图）
+	dash-board（仪表盘）
 # demo图例
 	折线图：
 ![image](https://github.com/hoc2019/data-visualization/blob/master/images/line.jpg)
