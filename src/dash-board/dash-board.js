@@ -1,6 +1,7 @@
 import React from 'react';
-import { _getCtx , _drawDashBoard } from '../../utils/canvas.js';
-import './dash-board.less';
+import styles from './dash-board.less';
+//import { _deepCopy } from '../utils/validator.js';
+import { _getCtx , _drawDashBoard } from '../utils/canvas.js';
 
 const obj = _drawDashBoard();
 const _setDashBoardCenter = obj._setDashBoardCenter.bind(obj);
@@ -46,13 +47,12 @@ class DashBoard extends React.Component{
 
 	drawBack(ctx){
 		let { center } = this.state;
-		let { width , height , innerRadius , outRadius , startAngle , endAngle , direction , invalidAreaBg , centerDot , scale } = this.state.props;
+		let { width , height , innerRadius , outRadius , startAngle , endAngle , direction , invalidAreaBg , scale } = this.state.props;
+		ctx.clearRect(0, 0, width, height);
 		/*设置中心点为原点*/
 		_setDashBoardCenter(ctx, center);
 		/*绘制背景*/
 		_drawDashBoardBack(ctx, { outRadius , innerRadius , invalidAreaBg , startAngle , endAngle , direction });
-		/*绘制中心点*/
-		_drawDashBoardCenterDot(ctx, centerDot);
 		/*绘制刻度*/
 		_drawDashBoardScale(ctx, { innerRadius , startAngle , endAngle , direction , ...scale });
 		/*重置原点位置 方便清除canvas*/
@@ -61,12 +61,14 @@ class DashBoard extends React.Component{
 
 	drawData(ctx){
 		let { center } = this.state;
-		let { width , height , startAngle , endAngle , direction , scale , pointer , dataNum } = this.state.props;
+		let { width , height , startAngle , endAngle , direction , centerDot , scale , pointer , dataNum } = this.state.props;
 		ctx.clearRect(0, 0, width, height);
 		/*设置中心点为原点*/
 		_setDashBoardCenter(ctx, center);
 		/*绘制仪表盘数据指示线*/
 		_drawDashBoardDataLine(ctx, { startAngle , endAngle , direction , ...pointer , dataNum , max : scale.max });
+		/*绘制中心点*/
+		_drawDashBoardCenterDot(ctx, centerDot);
 		/*重置原点位置 方便清除canvas*/
 		_setDashBoardCenter(ctx, [-center[0], -center[1]]);
 	}
@@ -75,26 +77,26 @@ class DashBoard extends React.Component{
 		let { canvasId } = this.state;
 		let { width , height , coordinate } = this.state.props;
 		return(
-			<div className = { 'dashboard_all' } style = {{ width , height }}>
-				{ canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = { 'dashboard_canvas' }></canvas>) }
+			<div className = { styles.dashboard_all } style = {{ width , height }}>
+				{ canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = { styles.dashboard_canvas }></canvas>) }
 			</div>
 		)
 	}
 }
 
 DashBoard.defaultProps = {
-	width : 500,					//canvas的宽度
-	height : 500,					//canvas的高度
-	innerRadius : 120,				//内半径
-	outRadius : 140,				//外半径
+	width : 450,					//canvas的宽度
+	height : 450,					//canvas的高度
+	innerRadius : 110,				//内半径
+	outRadius : 120,				//外半径
 	startAngle : 10/12 * Math.PI,	//起始角度(与canvas中arc一致)
 	endAngle : 2/12 * Math.PI,		//结束角度(与canvas中arc一致)
 	direction : false,				//false顺时针方向 true逆时针方向
-	invalidAreaBg : '#ddd',			//无效区背景色
+	invalidAreaBg : '#5d9cec',			//无效区背景色
 	centerDot : { radius : 5, stroke : false , fill : true , strokeStyle : '#5d9' , fillStyle : '#5d9' , lineWidth : 3 },		//中心点属性
-	scale : { gap : 15 , num : 5 , max : 20 , font : '12px Arail' },	//刻度线属性
-	pointer : { length : 90 , strokeStyle : '#5d9' , lineWidth : 4 },	//指示线属性
-	dataNum : 15,					//当前数据
+	scale : { gap : 15 , num : 10 , max : 30 , font : '12px Arail' },	//刻度线属性
+	pointer : { length : 70 , strokeStyle : 'pink' , lineWidth : 4 },	//指示线属性
+	dataNum : 5,					//当前数据
 }
 
 export default DashBoard;
