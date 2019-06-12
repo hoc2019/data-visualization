@@ -1,4 +1,4 @@
-import { _getMax , _getRate } from './calc.js';
+import { _getMax , _getRate , _getAmount , _reduceAngle } from './calc.js';
 import { _isExist , _isSetLineDash } from './validator.js';
 
 /**
@@ -194,7 +194,7 @@ function DrawCartCoor(){
 	 *  xCoor x坐标轴的位置属性{begin:a,end:b}
 	 *  yCoor y坐标轴的位置属性{begin:a,end:b}
 	 *  data 数据
-	 *  scale 当前鼠标的坐标(外部传入最好取offsetX和offSetY 与canvas坐标系对应)
+	 *  scale 当前鼠标的坐标(外部传入最好取offsetX和offSetY 与canvas坐标系对应) [cx, cy]
 	 *  xKey x的key值 字符串 'key'
 	 *  yKey y的key值 数组 ['a','b','c']
 	 *  yLabel y的key值对应的文案数组 ['这是a','这是b','这是c']
@@ -245,7 +245,7 @@ function DrawCartCoor(){
 					if(yKey.indexOf(j) > -1){
 						ctx.strokeStyle = fontColor[yKey.indexOf(j) % fontColor.length];
 						//绘制文字 如果找不到相应的label则直接显示键名
-						ctx.strokeText(`${yLabel[yKey.indexOf(j)] || j}:${data[i][j]}`, beginTextCx + 5, textCy);
+						ctx.strokeText(`${yLabel[yKey.indexOf(j)] || j}：${data[i][j]}`, beginTextCx + 5, textCy);
 						ctx.stroke();
 					}
 					//下一行的坐标增加
@@ -263,6 +263,14 @@ function DrawCartCoor(){
  */
 function DrawPolarCoor(){
 	/**
+	 * 设置极坐标原点并且
+	 * @params ctx canvas上下文
+	 * @params center 圆心点坐标
+	 */
+	this._setCenter = function(ctx, center){
+		ctx.translate.apply(ctx, center);
+	}
+	/**
 	 * 绘制极坐标原点并且
 	 * @params ctx canvas上下文
 	 * @params props 属性
@@ -273,11 +281,8 @@ function DrawPolarCoor(){
 	 *  strokeStyle 边框色色值
 	 *  center 中心点坐标
 	 */
-	this._setCenter = function(ctx, center){
-		ctx.translate.apply(ctx, center);
-	}
 	this._drawCenterDot = function(ctx, props = {}){
-		let { radius = 3 , fill , stroke , fillStyle , strokeStyle } = props;
+		let { radius = 3 , fill , stroke , fillStyle , strokeStyle , lineWidth } = props;
 		ctx.save();
 		ctx.beginPath();
 		ctx.arc(0, 0, radius, 0, 2 * Math.PI);
@@ -286,27 +291,49 @@ function DrawPolarCoor(){
 			ctx.fill();
 		}
 		if(stroke){
+			ctx.lineWidth = lineWidth;
 			ctx.strokeStyle = strokeStyle;
 			ctx.stroke();
 		}
 		ctx.closePath();
 		ctx.restore();
 	}
+	/**
+	 * 绘制极坐标文案
+	 * @params ctx canvas上下文
+	 * @params props 圆心点坐标
+	 *  fillStyle 字体颜色数组
+	 *  textGap 文案间距
+	 *  font 文案字体
+	 *  radius 当前极坐标系半径
+	 *  label 文案内容
+	 *  rad 当前文案的弧度
+	 */
 	this._drawLabel = function(ctx, props = {}){
-		let { fillStyle , textGap , font , radius , label , rad , index } = props;
+		let { fillStyle , textGap , font , radius , label , rad } = props;
 		//js计算偏差，这里四舍五入
-		let cx = Math.round(radius * Math.sin(rad * index));
-		let cy = -Math.round(radius * Math.cos(rad * index));		//由于笛卡尔坐标和canvas坐标y轴方向相反
+		let cx = Math.round(radius * Math.sin(rad));
+		let cy = -Math.round(radius * Math.cos(rad));		//由于笛卡尔坐标和canvas坐标y轴方向相反
 		//计算文案的位置
 		if(cx > 0){ cx += textGap }else if(cx < 0){ cx -= textGap }
 		if(cy > 0){ cy += textGap }else if(cy < 0){ cy -= textGap }
 		ctx.font = font;
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
-		if(Array.isArray(fillStyle) && fillStyle.length > 0 ){
-			ctx.fillStyle = fillStyle[index % fillStyle.length];
-		}
+		ctx.fillStyle = fillStyle;
 		ctx.fillText(label, cx, cy);
+	}
+	/**
+	 * 绘制极坐标数据文案
+	 * @parmas ctx 绘制canvas的上下文
+	 * @params props 其他参数对象
+	 *  data 数据
+	 *  radius 极坐标半径
+	 *  scale 当前鼠标的坐标(外部传入最好取offsetX和offSetY 与canvas坐标系对应) [cx, cy]
+	 */
+	this._drawDataBlock = function(ctx, props = {}){
+		let { data , radius , scale } = props;
+		//TODO
 	}
 }
 
@@ -412,12 +439,12 @@ class DrawRadar extends DrawPolarCoor{
 	_drawRadarCenterDot(){ this._drawCenterDot(...arguments) }
 	/*绘制雷达图文案*/
 	_drawRadarLabel(ctx, props = {}){
-		let { labelKey , data } = props;
+		let { labelKey , data , fillStyle } = props;
 		let rad = Math.PI * 2 / data.length;		//数据之间的弧度
 		ctx.save();
 		//格式化数据 label文案 rad弧度
 		data.map((item, index) => {
-			this._drawLabel(ctx, { ...props, label : item[labelKey] || '' , rad , index })
+			this._drawLabel(ctx, { ...props, label : item[labelKey] || '' , rad : rad * index , fillStyle : fillStyle[index % fillStyle.length] })
 		});
 		ctx.restore();
 	}
@@ -503,6 +530,182 @@ class DrawRadar extends DrawPolarCoor{
 	}
 }
 
+/**
+ * 绘制扇形图构造函数
+ * 继承极坐标系基类
+ */
+class DrawSector extends DrawPolarCoor{
+	constructor(props){
+		super(props);
+	}
+	/*设置扇形图原点*/
+	_setSectorCenter(){
+		this._setCenter(...arguments)
+	}
+	/*绘制扇形图原点*/
+	_drawSectorCenterDot(){ this._drawCenterDot(...arguments) }
+	/*绘制扇形图文案*/
+	_drawSectorLabel(ctx, props = {}){
+//		let { labelKey , data , fillStyle } = props;
+//		let rad = Math.PI * 2 / data.length;		//数据之间的弧度
+//		ctx.save();
+//		//格式化数据 label文案 rad弧度
+//		data.map((item, index) => {
+//			this._drawLabel(ctx, { ...props, label : item[labelKey] || '' , rad : rad * index , fillStyle : fillStyle[index % fillStyle.length] })
+//		});
+//		ctx.restore();
+	}
+	/*绘制扇形图数据*/
+	_drawSectorData(ctx, props = {}){
+		let { data , dataKey , dataLabel , radius , fillStyle } = props;
+		let amount = _getAmount(data);
+		let rad = 0;
+		let initPos = [0, -radius];
+		ctx.save();
+		data.map((item, index) => {
+			let θ = item[dataKey] / amount * Math.PI * 2;
+			rad += θ;
+			let cx = radius * Math.sin(rad);
+			let cy = -radius * Math.cos(rad);
+//			ctx.beginPath();
+			ctx.moveTo(0, 0);
+			ctx.lineTo(cx, cy);
+			ctx.stroke();
+//			ctx.closePath();
+
+			ctx.beginPath();
+			ctx.moveTo(0, 0);
+			ctx.arc(0, 0, radius, Math.PI*1.5+rad-θ, Math.PI*1.5+rad);
+			ctx.fillStyle = fillStyle[index % fillStyle.length];
+			ctx.fill();
+			ctx.closePath();
+		})
+		ctx.stroke();
+		ctx.restore();
+	}
+	/*鼠标悬浮绘制具体数据提示*/
+	_drawSectorDataBlock(){ this._drawDataBlock(...arguments) }
+}
+
+class DrawDashBoard extends DrawPolarCoor{
+	constructor(props){
+		super(props);
+	}
+	/**
+	 * 获取起始位置和结束位置的弧度值
+	 * @params startAngle 起始弧度
+	 * @params endAngle 结束弧度
+	 * @params direction 弧绘制方向(true逆时针/false顺时针)
+	 */
+	_getUseRad(startAngle , endAngle, direction){
+		let use = 0;
+		startAngle = _reduceAngle(startAngle);
+		endAngle = _reduceAngle(endAngle);
+		switch(direction){
+			//逆时针方向 有效区弧度为结束-起始
+			case true : use = endAngle - startAngle; break;
+			//顺时针方向
+			case false : use = 2 * Math.PI - startAngle + endAngle; break;
+		}
+		return use;
+	}
+	/*设置仪表盘原点*/
+	_setDashBoardCenter(){
+		this._setCenter(...arguments)
+	}
+	/**
+	 * 绘制仪表盘背景
+	 * @params ctx canvas的上下文
+	 * @params props
+	 *  outRadius 外层半径
+	 *  innerRadius 内层半径
+	 *  invalidAreaBg 无效区背景色
+	 */
+	_drawDashBoardBack(ctx, props){
+		let { outRadius = 120 , innerRadius = 100 , invalidAreaBg = '#ddd' , startAngle , endAngle , direction } = props;
+		startAngle = _reduceAngle(startAngle);
+		endAngle = _reduceAngle(endAngle);
+
+		ctx.save();
+
+		ctx.beginPath();
+		//绘制右边线
+		ctx.moveTo(0, 0);
+		ctx.lineTo(outRadius * Math.cos(endAngle), outRadius * Math.sin(endAngle));
+		//绘制左边线
+		ctx.moveTo(0, 0);
+		ctx.lineTo(outRadius * Math.cos(startAngle), outRadius * Math.sin(startAngle));
+		//绘制弧
+		ctx.arc(0, 0, outRadius, startAngle, endAngle, direction);
+		ctx.fillStyle = invalidAreaBg;
+		ctx.fill();
+
+		ctx.beginPath();
+		//绘制左边线
+		ctx.moveTo(0, 0);
+		ctx.lineTo(innerRadius * Math.cos(endAngle), innerRadius * Math.sin(endAngle));
+		//绘制右边线
+		ctx.moveTo(0, 0);
+		ctx.lineTo(innerRadius * Math.cos(startAngle), innerRadius * Math.sin(startAngle));
+		//绘制弧
+		ctx.arc(0, 0, innerRadius, startAngle, endAngle, direction);
+		ctx.strokeStyle = '#fff';
+		ctx.fillStyle = '#fff';
+		ctx.stroke();
+		ctx.fill();
+
+		ctx.restore();
+	}
+
+	/*绘制仪表盘中心点*/
+	_drawDashBoardCenterDot(){
+		this._drawCenterDot(...arguments)
+	}
+
+	/**
+	 * 绘制仪表盘刻度
+	 * @params ctx canvas的上下文
+	 * @params props
+	 *  innerRadius 里半径
+	 *  startAngle 起始弧度
+	 *  endAngle 结束弧度
+	 *  direction 弧绘制方向(true逆时针/false顺时针)
+	 *  gap 间距
+	 *  num 刻度线数量
+	 *  max 刻度线最大值
+	 */
+	_drawDashBoardScale(ctx, props){
+		let { innerRadius , startAngle , endAngle , direction , gap , num , max } = props;
+		//有效区弧度
+		let use = this._getUseRad(startAngle, endAngle, direction);
+		for(let i = 0 ; i < num + 1 ; i++){
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(Math.round(i*max/num), (innerRadius-gap)*Math.cos(startAngle+i*use/num), (innerRadius-gap)*Math.sin(startAngle+i*use/num));
+		}
+	}
+
+	/*绘制仪表盘数据指示线*/
+	_drawDashBoardDataLine(ctx, props){
+		let { startAngle , endAngle , direction , strokeStyle , length , lineWidth , dataNum , max } = props;
+		if(dataNum > max){
+			throw new Error('dataNum more than max is not allowed');
+			return;
+		}
+		//有效区弧度
+		let use = this._getUseRad(startAngle, endAngle, direction);
+		let cx = length * Math.cos(dataNum / max * use + startAngle);
+		let cy = length * Math.sin(dataNum / max * use + startAngle);
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(cx, cy);
+		ctx.lineWidth = lineWidth;
+		ctx.lineCap = 'round';
+		ctx.strokeStyle = strokeStyle;
+		ctx.stroke();
+	}
+}
+
 /*绘制折线图方法*/
 export function _drawLine(){
 	return new DrawLine();
@@ -511,6 +714,16 @@ export function _drawLine(){
 /*绘制雷达图方法*/
 export function _drawRadar(){
 	return new DrawRadar();
+}
+
+/*绘制扇形图方法*/
+export function _drawSector(){
+	return new DrawSector();
+}
+
+/*绘制仪表盘方法*/
+export function _drawDashBoard(){
+	return new DrawDashBoard();
 }
 
 
