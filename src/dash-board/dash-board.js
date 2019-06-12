@@ -46,7 +46,7 @@ class DashBoard extends React.Component{
 
 	drawBack(ctx){
 		let { center } = this.state;
-		let { innerRadius , outRadius , startAngle , endAngle , direction , invalidAreaBg , centerDot , scale } = this.state.props;
+		let { width , height , innerRadius , outRadius , startAngle , endAngle , direction , invalidAreaBg , centerDot , scale } = this.state.props;
 		/*设置中心点为原点*/
 		_setDashBoardCenter(ctx, center);
 		/*绘制背景*/
