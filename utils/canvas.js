@@ -587,6 +587,10 @@ class DrawSector extends DrawPolarCoor{
 	_drawSectorDataBlock(){ this._drawDataBlock(...arguments) }
 }
 
+/**
+ * 绘制仪表盘构造函数
+ * 继承极坐标系基类
+ */
 class DrawDashBoard extends DrawPolarCoor{
 	constructor(props){
 		super(props);
@@ -686,7 +690,19 @@ class DrawDashBoard extends DrawPolarCoor{
 		}
 	}
 
-	/*绘制仪表盘数据指示线*/
+	/**
+	 * 绘制仪表盘数据指示线
+	 * @params ctx canvas的上下文
+	 * @params props
+	 *  startAngle 起始弧度
+	 *  endAngle 结束弧度
+	 *  direction 弧绘制方向(true逆时针/false顺时针)
+	 *  strokeStyle 指示线颜色
+	 *  length 指示线长度
+	 *  lineWidth 指示线宽度
+	 *  dataNum 当前数据
+	 *  max 数据最大值
+	 */
 	_drawDashBoardDataLine(ctx, props){
 		let { startAngle , endAngle , direction , strokeStyle , length , lineWidth , dataNum , max } = props;
 		if(dataNum > max){
