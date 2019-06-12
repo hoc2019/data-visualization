@@ -1,7 +1,6 @@
 import React from 'react';
-import styles from './dash-board.less';
-//import { _deepCopy } from '../utils/validator.js';
-import { _getCtx , _drawDashBoard } from '../utils/canvas.js';
+import { _getCtx , _drawDashBoard } from '../../utils/canvas.js';
+import './dash-board.less';
 
 const obj = _drawDashBoard();
 const _setDashBoardCenter = obj._setDashBoardCenter.bind(obj);
@@ -77,8 +76,8 @@ class DashBoard extends React.Component{
 		let { canvasId } = this.state;
 		let { width , height , coordinate } = this.state.props;
 		return(
-			<div className = { styles.dashboard_all } style = {{ width , height }}>
-				{ canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = { styles.dashboard_canvas }></canvas>) }
+			<div className = { 'dashboard_all' } style = {{ width , height }}>
+				{ canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = { 'dashboard_canvas' }></canvas>) }
 			</div>
 		)
 	}
@@ -94,7 +93,7 @@ DashBoard.defaultProps = {
 	direction : false,				//false顺时针方向 true逆时针方向
 	invalidAreaBg : '#5d9cec',			//无效区背景色
 	centerDot : { radius : 5, stroke : false , fill : true , strokeStyle : '#5d9' , fillStyle : '#5d9' , lineWidth : 3 },		//中心点属性
-	scale : { gap : 15 , num : 10 , max : 30 , font : '12px Arail' },	//刻度线属性
+	scale : { gap : 15 , num : 8 , max : 30 , font : '12px Arail' },	//刻度线属性
 	pointer : { length : 70 , strokeStyle : 'pink' , lineWidth : 4 },	//指示线属性
 	dataNum : 5,					//当前数据
 }
