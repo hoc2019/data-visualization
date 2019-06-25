@@ -142,7 +142,7 @@ class Clock extends React.Component{
 		ctx.restore();
 	}
 
-	//绘制时针公共方法
+	//绘制指针公共方法
 	drawPointer(ctx, props){
 		let { rad , lineWidth , length , strokeStyle } = props;
 		ctx.save();
