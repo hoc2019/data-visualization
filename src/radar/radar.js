@@ -147,12 +147,12 @@ class Radar extends React.Component{
 Radar.defaultProps = {
 	width : 450,				//canvas的宽度
 	height : 450,				//canvas的高度
-	radius : 150,				//雷达图的半径
+	radius : 130,				//雷达图的半径
 	centerDot : { radius : 5 , fill : true , fillStyle : '#5d9'  , stroke : false , strokeStyle : '#5d9cec' },
 	scale : {
-		lineWidth : 5,			//雷达图刻度线宽
+		lineWidth : 2,			//雷达图刻度线宽
 		strokeStyle : '#5d9',	//雷达图刻度线颜色
-		scaleNum : 3,			//雷达图内含环数
+		scaleNum : 4,			//雷达图内含环数
 //		setLineDash : [4, 4]	//雷达图刻度线虚线指标
 	},
 	guide : {
@@ -168,7 +168,7 @@ Radar.defaultProps = {
 		font : '16px Arial',					//文案默认字体大小和字体种类
 	},
 	dataRender : {
-		stroke : true,
+//		stroke : true,
 		strokeStyle : ['#5d9','#5d9cec','#ff0000'],
 //		setLineDash : [4, 4],	//虚线参数[长度，间隔]
 		fill : true,
@@ -177,25 +177,26 @@ Radar.defaultProps = {
 		dataKey : ['A', 'B', 'C'],
 		dataLabel : ['stuA','stuB','stuC']
 	},
-	tooltip : { position : 'bottom' , childLineHeight : 5 , childLineWidth : 40 , height : 60 , disabledColor : '#ddd' },	//工具提示
+	title : { position : 'top' , label : '成绩图（α测试）' , style : { fontSize : 16 , color : '#000' , height : 60 } },
+	tooltip : { position : 'bottom' , childLineHeight : 20 , childLineWidth : 30 , height : 60 , disabledColor : '#ddd' },	//工具提示
 	data : [{
 		label : '语文' , A : 120 , B : 90 , C : 130
 	},{
 		label : '数学' , A : 140 , B : 150 , C : 130
 	},{
-		label : '英语' , A : 130 , B : 90 , C : 130
+		label : '英语' , A : 130 , B : 90 , C : 150
 	},{
-		label : '历史' , A : 90 , B : 80 , C : 100
+		label : '历史' , A : 50 , B : 80 , C : 60
 	},{
-		label : '政治' , A : 95 , B : 60 , C : 100
-	},{
-		label : '地理' , A : 80 , B : 75 , C : 100
-	},{
-		label : '历史' , A : 90 , B : 80 , C : 100
-	},{
-		label : '政治' , A : 95 , B : 60 , C : 100
+		label : '政治' , A : 90 , B : 60 , C : 100
 	},{
 		label : '地理' , A : 80 , B : 75 , C : 100
+	},{
+		label : '物理' , A : 100 , B : 80 , C : 100
+	},{
+		label : '化学' , A : 95 , B : 60 , C : 100
+	},{
+		label : '生物' , A : 90 , B : 75 , C : 100
 	}]							//展示数据
 }
 

@@ -13,6 +13,7 @@
 	line-dot（散点图）
 	radar（雷达图）
 	dash-board（仪表盘）
+	clock（时钟）
 # demo图例
 	折线图：
 ![image](https://github.com/hoc2019/data-visualization/blob/master/images/line.jpg)
@@ -25,4 +26,7 @@
 
 	仪表盘：
 ![image](https://github.com/hoc2019/data-visualization/blob/master/images/dash-board.jpg)
+
+	时钟：
+![image](https://github.com/hoc2019/data-visualization/blob/master/images/clock.jpg)
 
