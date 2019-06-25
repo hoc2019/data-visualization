@@ -45,10 +45,11 @@ class Clock extends React.Component{
 
 	//绘制钟背景
 	drawClockBack(ctx){
-		let { width , height , radius , clockWidth } = this.state.props;
+		let { width , height , radius , clockWidth , clockStrokeStyle } = this.state.props;
 		ctx.save();
         ctx.beginPath();
         ctx.lineWidth = clockWidth;
+		ctx.strokeStyle = clockStrokeStyle;
         ctx.arc(0, 0, radius, 0, 2*Math.PI, false);
         ctx.stroke();
 		ctx.restore();
@@ -172,6 +173,7 @@ Clock.defaultProps = {
 	height : 450,	//canvas宽高度
 	radius : 150,	//钟半径
 	clockWidth : 8,	//钟边框宽度
+	clockStrokeStyle : '#000',	//钟边框颜色
 	scaleGap : 15,	//钟刻度距离边框的距离
 	numberGap : 30,	//钟数字距离边框的距离
 	hourPointer : { lineWidth : 4 , length : 70 , strokeStyle : '#5d9' },			//时针属性 线宽 长度 线条色
