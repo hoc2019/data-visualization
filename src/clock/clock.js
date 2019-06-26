@@ -34,17 +34,23 @@ class Clock extends React.Component{
 		let ctxPointer = _getCtx.call(this, canvasId[1]);
 		let center = [ Math.round(width/2), Math.round(height/2) ];
 		this.setState({ center }, () => {
-			ctxBack.translate(center[0], center[1]);
-			ctxPointer.translate(center[0], center[1]);
 			this.drawClockBack(ctxBack);
-			this.drawClockScale(ctxBack);
-			this.drawClockNum(ctxBack);
 			this.drawClockPointer(ctxPointer);
 		})
 	}
 
 	//绘制钟背景
 	drawClockBack(ctx){
+		let { center } = this.state;
+		ctx.save();
+		ctx.translate(center[0], center[1]);
+		this.drawClockBackground(ctx);
+		this.drawClockScale(ctx);
+		this.drawClockNum(ctx);
+		ctx.restore();
+	}
+
+	drawClockBackground(ctx){
 		let { width , height , radius , clockWidth , clockStrokeStyle } = this.state.props;
 		ctx.save();
         ctx.beginPath();
@@ -97,11 +103,14 @@ class Clock extends React.Component{
 	drawClockPointer(ctx){
 		let { center } = this.state;
 		let { width , height } = this.state.props;
-		ctx.clearRect(-center[0], -center[1], width, height);
+		ctx.clearRect(0, 0, width, height);
+		ctx.save();
+		ctx.translate(center[0], center[1]);
 		this.drawHour(ctx);
         this.drawMinute(ctx);
         this.drawSecond(ctx);
 		this.drawCenterDot(ctx);
+		ctx.restore();
 		let t = setTimeout(() => {
 			this.drawClockPointer(ctx);
 			clearTimeout(t);
