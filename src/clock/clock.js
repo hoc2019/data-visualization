@@ -44,13 +44,14 @@ class Clock extends React.Component{
 		let { center } = this.state;
 		ctx.save();
 		ctx.translate(center[0], center[1]);
-		this.drawClockBackground(ctx);
+		this.drawClockBackFrame(ctx);
 		this.drawClockScale(ctx);
 		this.drawClockNum(ctx);
 		ctx.restore();
 	}
 
-	drawClockBackground(ctx){
+	//绘制背景边框
+	drawClockBackFrame(ctx){
 		let { width , height , radius , clockWidth , clockStrokeStyle } = this.state.props;
 		ctx.save();
         ctx.beginPath();
