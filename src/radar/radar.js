@@ -100,7 +100,7 @@ class Radar extends React.Component{
 							height : childLineHeight,
 							width : childLineWidth,
 							marginRight : 5,
-							background : item.show && fill ? fillStyle[index % fillStyle.length] : disabledColor,
+							background : item.show && fill ? fillStyle[index % fillStyle.length] : '#fff',
 							border : item.show && stroke ? `1px solid ${strokeStyle[index % strokeStyle.length]}` : disabledColor,
 						}}></div>
 						{/*如果没有获取到相应的label，则显示key*/}
