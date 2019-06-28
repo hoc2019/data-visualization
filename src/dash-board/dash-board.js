@@ -17,6 +17,7 @@ class DashBoard extends React.Component{
 		super(props);
 		this.state = {
 			canvasId : ['back', 'data'],
+			titleDOM : undefined,
 			props : {},
 			center : []
 		}
@@ -32,6 +33,7 @@ class DashBoard extends React.Component{
 		this.setState({ props : nextProps }, () => this.init())
 	}
 
+	//初始化方法
 	init(){
 		let { canvasId } = this.state;
 		let { width , height } = this.state.props;
@@ -41,9 +43,11 @@ class DashBoard extends React.Component{
 		this.setState({ center }, () => {
 			this.drawBack(ctxBack);
 			this.drawData(ctxData);
+			this.drawTitle();
 		})
 	}
 
+	//绘制背景
 	drawBack(ctx){
 		let { center } = this.state;
 		let { width , height , innerRadius , outRadius , startAngle , endAngle , direction , invalidAreaBg , scale } = this.state.props;
@@ -58,6 +62,7 @@ class DashBoard extends React.Component{
 		_setDashBoardCenter(ctx, [-center[0], -center[1]]);
 	}
 
+	//绘制数据
 	drawData(ctx){
 		let { center } = this.state;
 		let { width , height , startAngle , endAngle , direction , centerDot , scale , pointer , dataNum } = this.state.props;
@@ -72,12 +77,22 @@ class DashBoard extends React.Component{
 		_setDashBoardCenter(ctx, [-center[0], -center[1]]);
 	}
 
+	//绘制标题
+	drawTitle(){
+		let { width , title } = this.state.props;
+		let { position , label , style = {} } = title;
+		style = { ...style , width };
+		style[position] = 0;
+		this.setState({ titleDOM : (<div className = { 'dashboard_title' } style = { style }>{ label }</div>) })
+	}
+
 	render(){
-		let { canvasId } = this.state;
+		let { canvasId , titleDOM } = this.state;
 		let { width , height , coordinate } = this.state.props;
 		return(
 			<div className = { 'dashboard_all' } style = {{ width , height }}>
 				{ canvasId && canvasId.map((item,index) => <canvas key = { item } ref = { item } width = { width } height = { height } className = { 'dashboard_canvas' }></canvas>) }
+				{ titleDOM }
 			</div>
 		)
 	}
@@ -86,16 +101,17 @@ class DashBoard extends React.Component{
 DashBoard.defaultProps = {
 	width : 450,					//canvas的宽度
 	height : 450,					//canvas的高度
-	innerRadius : 110,				//内半径
+	innerRadius : 105,				//内半径
 	outRadius : 120,				//外半径
 	startAngle : 10/12 * Math.PI,	//起始角度(与canvas中arc一致)
 	endAngle : 2/12 * Math.PI,		//结束角度(与canvas中arc一致)
 	direction : false,				//false顺时针方向 true逆时针方向
 	invalidAreaBg : '#5d9cec',			//无效区背景色
 	centerDot : { radius : 5, stroke : false , fill : true , strokeStyle : '#5d9' , fillStyle : '#5d9' , lineWidth : 3 },		//中心点属性
-	scale : { gap : 15 , num : 8 , max : 30 , font : '12px Arail' },	//刻度线属性
-	pointer : { length : 70 , strokeStyle : 'pink' , lineWidth : 4 },	//指示线属性
-	dataNum : 5,					//当前数据
+	scale : { gap : 15 , num : 6 , max : 30 , font : '12px Arail' },	//刻度线属性
+	pointer : { length : 75 , strokeStyle : '#5d9' , lineWidth : 4 },	//指示线属性
+	dataNum : 23,					//当前数据
+	title : { position : 'top' , label : '油量表(α测试)' , style : { fontSize : 16 , color : '#000' , height : 100 } },
 }
 
 export default DashBoard;
