@@ -23,7 +23,7 @@
 	npm install安装依赖
 	npm run build
 	根目录lib文件夹中即为build完成的代码
-	import { Radar } from 'xx/xx'
+	import { Radar , Line , DashBoard , Clock } from 'xx/xx'
 
 # 目前已完成
 	line（折线图）
